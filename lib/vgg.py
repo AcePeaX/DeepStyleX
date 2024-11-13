@@ -7,7 +7,7 @@ class VGGFeatures(nn.Module):
         super(VGGFeatures, self).__init__()
         if device==None:
             device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-        self.vgg = models.vgg19(pretrained=True).features.to(device).eval()
+        self.vgg = models.vgg19(weights=models.VGG19_Weights.DEFAULT).features.to(device).eval()
         self.layers = layers
         self.layer_name_mapping = {
             '1': "relu1_1",
