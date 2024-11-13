@@ -11,7 +11,7 @@ def imshow(images, titles=[""], callback = None, nrows = 0, ncols=0):
     ncols : number of columns of subplots wanted in the display
     nrows : number of rows of subplots wanted in the figure
     """
-    if type(images)!=list or type(images)!=tuple:
+    if type(images)!=list and type(images)!=tuple:
         images = [images]
     if ncols == 0 and nrows == 0:
         ncols = len(images)
