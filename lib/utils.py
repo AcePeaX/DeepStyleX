@@ -13,7 +13,7 @@ def preprocess(image, device=None):
         transforms.ToTensor(),
         normalize
     ])
-    return transform(image)#.unsqueeze(0).to(device)  # Add batch dimension
+    return transform(image).unsqueeze(0).to(device)  # Add batch dimension
 
 def deprocess(tensor):
     # Denormalize and convert tensor to PIL Image
