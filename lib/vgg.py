@@ -3,11 +3,11 @@ import torch.nn as nn
 from torchvision import models
 
 class VGGFeatures(nn.Module):
-    def __init__(self, layers=['relu1_2', 'relu2_2', 'relu3_3', 'relu4_3', 'relu5_3'], device=None, requires_grad=False):
+    def __init__(self, layers=['relu1_2', 'relu2_2', 'relu3_3', 'relu4_3'], device=None, requires_grad=False):
         super(VGGFeatures, self).__init__()
         if device==None:
             device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-        self.vgg = models.vgg19(weights=models.VGG19_Weights.DEFAULT).features.to(device).eval()
+        self.vgg = models.vgg16(weights=models.VGG16_Weights.DEFAULT).features.to(device).eval()
         self.layers = layers
         self.layer_name_mapping = {
             '1': "relu1_1",
