@@ -13,7 +13,7 @@ def preprocess(image, device=None):
         transforms.ToTensor(),
         #normalize
     ])
-    return transform(image).unsqueeze(0).to(device)  # Add batch dimension
+    return transform(image).to(device)  # Add batch dimension
 
 def deprocess(tensor):
     # Denormalize and convert tensor to PIL Image
@@ -21,6 +21,8 @@ def deprocess(tensor):
         mean=[-0.485/0.229, -0.456/0.224, -0.406/0.225],
         std =[1/0.229, 1/0.224, 1/0.225]
     )
-    tensor = tensor.squeeze(0).cpu() #inv_normalize(tensor.squeeze(0).cpu())
+    if len(tensor.shape)==4:
+        tensor = tensor.squeeze(0)
+    tensor = tensor.cpu() #inv_normalize(tensor.squeeze(0).cpu())
     tensor = torch.clamp(tensor, 0, 1)
     return transforms.ToPILImage()(tensor)
