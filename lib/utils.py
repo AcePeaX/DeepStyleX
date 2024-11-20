@@ -1,5 +1,6 @@
 import torch
 from torchvision import transforms
+from PIL import Image
 
 # Define normalization transform
 normalize = transforms.Normalize(mean=[0.485, 0.456, 0.406],
@@ -10,27 +11,32 @@ def preprocess(image, device=None, resize=True):
     # Assume 'image' is a PIL Image
     if resize:
         transform = transforms.Compose([
-            transforms.Resize((512, 512)),
+            transforms.Resize((256, 256)),
             transforms.ToTensor(),
+            #transforms.Lambda(lambda x: x.mul(255))
         ])
     else:
         transform = transforms.Compose([
             transforms.ToTensor(),
+            #transforms.Lambda(lambda x: x.mul(255))
         ])
 
     return transform(image).to(device)  # Add batch dimension
 
 def deprocess(tensor):
     # Denormalize and convert tensor to PIL Image
-    inv_normalize = transforms.Normalize(
-        mean=[-0.485/0.229, -0.456/0.224, -0.406/0.225],
-        std =[1/0.229, 1/0.224, 1/0.225]
-    )
     if len(tensor.shape)==4:
         tensor = tensor.squeeze(0)
-    tensor = tensor.cpu() #inv_normalize(tensor.squeeze(0).cpu())
-    tensor = torch.clamp(tensor, 0, 1)
+    tensor = tensor.cpu() 
+    #tensor = torch.clamp(tensor, 0, 1)
     return transforms.ToPILImage()(tensor)
+
+def normalize_batch(batch):
+    # normalize using imagenet mean and std
+    mean = batch.new_tensor([0.485, 0.456, 0.406]).view(-1, 1, 1)
+    std = batch.new_tensor([0.229, 0.224, 0.225]).view(-1, 1, 1)
+    batch = batch.div_(255.0)
+    return (batch - mean) / std
 
 def gram_matrix(X: torch.Tensor):
     """
@@ -60,3 +66,35 @@ def gram_matrix(X: torch.Tensor):
     return gram
 
 
+
+def resize_image_with_max_resolution(image: Image.Image, max_resolution: int) -> Image.Image:
+    """
+    Resize a PIL image to ensure its resolution (width * height) does not exceed max_resolution.
+    Maintains the original aspect ratio. Only reduces size if needed.
+
+    Args:
+        image (Image.Image): Input PIL image.
+        max_resolution (int): Maximum allowed resolution (width * height).
+
+    Returns:
+        Image.Image: Resized PIL image with the same aspect ratio.
+    """
+    # Get the original dimensions of the image
+    original_width, original_height = image.size
+    original_resolution = original_width * original_height
+
+    # Check if resizing is needed
+    if original_resolution <= max_resolution:
+        return image  # No resizing needed
+
+    # Compute the scaling factor to fit within max_resolution
+    scaling_factor = (max_resolution / original_resolution) ** 0.5
+
+    # Calculate the new dimensions while maintaining aspect ratio
+    new_width = int(original_width * scaling_factor)
+    new_height = int(original_height * scaling_factor)
+
+    # Resize the image
+    resized_image = image.resize((new_width, new_height), Image.LANCZOS)
+
+    return resized_image
