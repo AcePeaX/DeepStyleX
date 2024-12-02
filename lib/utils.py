@@ -2,9 +2,12 @@ import torch
 from torchvision import transforms
 from PIL import Image
 
-# Define normalization transform
-normalize = transforms.Normalize(mean=[0.485, 0.456, 0.406],
-                                std =[0.229, 0.224, 0.225])
+def normalize(X):
+    mean = X.new_tensor([0.485, 0.456, 0.406]).view(-1, 1, 1)
+    std = X.new_tensor([0.229, 0.224, 0.225]).view(-1, 1, 1)
+    X = X.div_(255.0)
+    return (X - mean) / std
+
 def preprocess(image, device=None, resize=True):
     if device==None:
             device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -21,13 +24,14 @@ def preprocess(image, device=None, resize=True):
             #transforms.Lambda(lambda x: x.mul(255))
         ])
 
-    return transform(image).to(device)  # Add batch dimension
+    return 255*transform(image).to(device)  # Add batch dimension
 
 def deprocess(tensor):
     # Denormalize and convert tensor to PIL Image
     if len(tensor.shape)==4:
         tensor = tensor.squeeze(0)
-    tensor = tensor.cpu() 
+    tensor = tensor.cpu()
+    tensor = tensor.clone().clamp(0, 255).detach().numpy().transpose(1, 2, 0).astype("uint8")
     #tensor = torch.clamp(tensor, 0, 1)
     return transforms.ToPILImage()(tensor)
 
