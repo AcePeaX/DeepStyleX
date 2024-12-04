@@ -167,7 +167,7 @@ def train(args):
             
             if args.checkpoint_interval!=None:
                 if batch_count%args.checkpoint_interval==0:
-                    model.save(os.path.join(args.checkpoint_dir,append_metadata(checkpoint_basename, epoch, j+1)))
+                    model.save(os.path.join(args.checkpoint_dir,append_metadata(checkpoint_basename, epoch, j+1))+".pth")
     
     if args.save_optimizer:
         model.save(args.output_path, optimizer=optimizer)

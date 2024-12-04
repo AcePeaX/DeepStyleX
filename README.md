@@ -21,6 +21,9 @@ pip install -r requirements.txt
 If it doesn't work, try
 ```bash
 pip install torch pillow torchvision numpy tqdm
+
+# For web-app
+pip install fastapi python-multipart uvicorn
 ```
 
 
