@@ -10,4 +10,15 @@ This model is inspired from these two papers:
 ## Getting started
 ```bash
 python3 -m venv .venv
+source .venv/bin/activate
+```
+
+To install the dependencies:
+```bash
+pip install -r requirements.txt
+```
+
+If it doesn't work, try
+```bash
+pip install torch pillow torchvision numpy tqdm
 ```

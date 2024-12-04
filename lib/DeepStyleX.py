@@ -81,6 +81,7 @@ class DeepStyleX(torch.nn.Module):
         self.relu = nn.ReLU()
 
         # Initial convolution layers
+        self.downsample_layers = downsample_layers
         self.down_layers = nn.ModuleList()
         for i in range(1, len(downsample_layers)):
             self.down_layers.append(
@@ -93,6 +94,7 @@ class DeepStyleX(torch.nn.Module):
             self.down_layers.append(self.relu)
         # Residual layers
         self.residual_layers = nn.ModuleList()
+        self.num_residual_blocks = num_residual_blocks
         for i in range(num_residual_blocks):
             if batch_norm:
                 self.residual_layers.append(ResidualBlock_BatchNorm(upsample_layers[0][0]))
@@ -100,6 +102,7 @@ class DeepStyleX(torch.nn.Module):
                 self.residual_layers.append(ResidualBlock_InstanceNorm(upsample_layers[0][0]))
         # Upsampling Layers
         self.up_layers = nn.ModuleList()
+        self.upsample_layers = upsample_layers
         for i in range(1, len(upsample_layers)):
             if(i<len(upsample_layers)-1):
                 self.up_layers.append(
@@ -127,3 +130,22 @@ class DeepStyleX(torch.nn.Module):
             y = layer(y)
 
         return y
+    
+    def save(self, path, optimizer=None):
+        obj = dict()
+        obj['params'] = self.state_dict()
+        obj['downsample_layers'] = self.downsample_layers
+        obj['num_residual_blocks'] = self.num_residual_blocks
+        obj['upsample_layers'] = self.upsample_layers
+        obj['opti'] = optimizer
+        torch.save(obj, path)
+
+    @classmethod
+    def load(cls, path):
+        obj = torch.load(path, weights_only=True)
+        instance = cls(downsample_layers=obj['downsample_layers'],num_residual_blocks=obj['num_residual_blocks'],upsample_layers=obj['upsample_layers'])
+        instance.load_state_dict(obj['params'])
+        optimizer = None
+        if 'opti' in obj.keys():
+            optimizer = obj["opti"]
+        return instance, optimizer
