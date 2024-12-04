@@ -39,14 +39,14 @@ def append_metadata(base_name, epoch=None, batch_id=None, separator="_"):
 # define the loss
 def loss_function(output_features, original_features, style_gram_features, criterion: torch.nn.Module, content_weight=1, style_weight=1):
     style_loss = 0.
-    weights = [1, 1, 1, 1]
+    weights = [1, 1, 1, 1, 1]
 
 
     content_loss = content_weight * criterion(output_features['relu2_2'], original_features['relu2_2'])
 
-    for feature, w in zip(output_features.keys(),weights):
+    for feature in output_features.keys():
         gm_y = gram_matrix(output_features[feature])
-        style_loss += criterion(gm_y, style_gram_features[feature]) * w
+        style_loss += criterion(gm_y, style_gram_features[feature])
     style_loss *= style_weight
 
     return content_loss + style_loss

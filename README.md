@@ -22,3 +22,15 @@ If it doesn't work, try
 ```bash
 pip install torch pillow torchvision numpy tqdm
 ```
+
+
+## Example use case
+### Train
+```bash
+python3 scripts/model-cli.py train --dataset data/scenes/Coco/ --epochs 4 --style-path data/style/leaf-style.jpg --resume-path data/saves/model1.pth --output-path data/saves/model1.pth --checkpoint-dir data/check/ --checkpoint-interval 200
+```
+
+### Test
+```bash
+python3 scripts/model-cli.py eval --model-path data/saves/model1.pth --input-image data/Central-Park.jpg --output-image output/central-leaf.jpg 
+```

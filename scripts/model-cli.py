@@ -17,6 +17,7 @@ def get_train_args(parser):
     parser.add_argument('--dataset', type=str, required=True, help="Path to the dataset folder")
     parser.add_argument('--batch-size', type=int, default=4, help="The batch size for training")
     parser.add_argument('--style-weight', type=float, default=100000, help="Weight for style loss")
+    parser.add_argument('--batch-norm', action='store_true', default=False, help="Use BatchNorm instead of InstanceNorm")
     parser.add_argument('--model-name', type=str, default=None, help="Name of the model being trained")
     parser.add_argument('--resume-path', type=str, default=None, help="Path to resume training from a saved model")
     parser.add_argument('--stored-optimizer-path', type=str, default=None, help="Path to a stored optimizer state to resume training")
@@ -96,9 +97,11 @@ def train(args):
     torch.manual_seed(args.seed)
     np.random.seed(args.seed)
 
+    optimizer = None
+
     if args.resume_path!=None:
         if os.path.exists(args.resume_path):
-            model = DeepStyleX.load(args.resume_path)
+            model, optimizer = DeepStyleX.load(args.resume_path)
         else:
             print("Model not found in:",args.resume_path)
             answer = input("Do you want to continue with a fresh model? (yes) : ")
@@ -122,7 +125,6 @@ def train(args):
 
 
     criterion = torch.nn.MSELoss()
-    optimizer = None
     if optimizer==None:
         optimizer = torch.optim.Adam(model.parameters(),lr=args.lr)
     model.train()
@@ -159,7 +161,7 @@ def train(args):
 
             loss.backward()
             optimizer.step()
-            pbar.set_description(str(epoch+1)+' -> '+str(j)+' : '+'{0:.8f}'.format(loss.item()))
+            pbar.set_description(str(epoch+1)+' -> '+str(j+1)+' : '+'{0:.8f}'.format(loss.item()))
 
             batch_count+=1
             
@@ -167,8 +169,10 @@ def train(args):
                 if batch_count%args.checkpoint_interval==0:
                     model.save(os.path.join(args.checkpoint_dir,append_metadata(checkpoint_basename, epoch, j+1)))
     
-
-    model.save(args.output_path)
+    if args.save_optimizer:
+        model.save(args.output_path, optimizer=optimizer)
+    else:
+        model.save(args.output_path)
 
 
 def evaluate(args):
