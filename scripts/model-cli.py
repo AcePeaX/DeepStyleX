@@ -196,7 +196,7 @@ def evaluate(args):
     input_image = preprocess(input_image, resize=False).unsqueeze(0)
 
     with torch.no_grad():
-        model, _ = DeepStyleX.load(args.model_path)
+        model, _ = DeepStyleX.load(args.model_path, map_location=device)
         model.to(device)
         model.eval()
         output = model(input_image)

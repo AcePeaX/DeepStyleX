@@ -143,8 +143,10 @@ class DeepStyleX(torch.nn.Module):
         torch.save(obj, path)
 
     @classmethod
-    def load(cls, path):
-        obj = torch.load(path, weights_only=True)
+    def load(cls, path, map_location=None):
+        if map_location==None:
+            map_location=torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        obj = torch.load(path, weights_only=True, map_location=map_location)
         batch_norm = False
         if 'batch_norm' in obj.keys():
             batch_norm = obj["batch_norm"]
