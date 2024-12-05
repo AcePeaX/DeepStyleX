@@ -1,6 +1,22 @@
 import torch
 from torchvision.transforms import ToTensor, ToPILImage
 import torch.nn as nn
+import io
+
+# Save the image as compressed bytes
+def save_image_as_bytes(image, format: str = "JPEG"):
+    # Save image to a byte buffer
+    buffer = io.BytesIO()
+    image.save(buffer, format=format)
+    buffer.seek(0)
+    # Convert to bytes and save with torch.save
+    return buffer.getvalue()
+
+def load_image_from_bytes(bytes):
+    # Convert bytes back to a PIL image
+    buffer = io.BytesIO(bytes)
+    image = Image.open(buffer)
+    return image
 
 class CustomConvolutionalLayer(nn.Module):
     def __init__(self, in_size, out_size, kernel_size=1, stride=1):
@@ -145,7 +161,7 @@ class DeepStyleX(torch.nn.Module):
         if style_image==None:
             style_image = self.style_image
         if style_image!=None:
-            obj['style_image'] = ToTensor()(style_image)
+            obj['style_image'] = save_image_as_bytes(style_image)
         else:
             obj['style_image'] = None
         obj['opti'] = optimizer
@@ -163,7 +179,10 @@ class DeepStyleX(torch.nn.Module):
         instance.load_state_dict(obj['params'])
         if 'style_image' in obj.keys():
             try:
-                instance.style_image = ToPILImage()(obj["style_image"])
+                if type(obj["style_image"]) == torch.Tensor:
+                    instance.style_image = ToPILImage()(obj["style_image"])
+                else:
+                    instance.style_image = load_image_from_bytes(obj["style_image"])
             except:
                 print("Couldn't load style image from the model")
         optimizer = None
