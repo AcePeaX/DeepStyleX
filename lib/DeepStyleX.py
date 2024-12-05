@@ -2,6 +2,7 @@ import torch
 from torchvision.transforms import ToTensor, ToPILImage
 import torch.nn as nn
 import io
+from PIL import Image
 
 # Save the image as compressed bytes
 def save_image_as_bytes(image, format: str = "JPEG"):
@@ -10,12 +11,13 @@ def save_image_as_bytes(image, format: str = "JPEG"):
     image.save(buffer, format=format)
     buffer.seek(0)
     # Convert to bytes and save with torch.save
-    return buffer.getvalue()
+    tosave = torch.tensor(list(buffer.getvalue()), dtype=torch.uint8)
+    return tosave
 
-def load_image_from_bytes(bytes):
+def load_image_from_bytes(tensor_byte):
     # Convert bytes back to a PIL image
-    buffer = io.BytesIO(bytes)
-    image = Image.open(buffer)
+    buffer = bytes(tensor_byte.tolist())
+    image = Image.open(io.BytesIO(buffer))
     return image
 
 class CustomConvolutionalLayer(nn.Module):
@@ -179,7 +181,7 @@ class DeepStyleX(torch.nn.Module):
         instance.load_state_dict(obj['params'])
         if 'style_image' in obj.keys():
             try:
-                if type(obj["style_image"]) == torch.Tensor:
+                if len(obj["style_image"].shape) != 1:
                     instance.style_image = ToPILImage()(obj["style_image"])
                 else:
                     instance.style_image = load_image_from_bytes(obj["style_image"])
