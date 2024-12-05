@@ -39,7 +39,7 @@ def append_metadata(base_name, epoch=None, batch_id=None, separator="_"):
 # define the loss
 def loss_function(output_features, original_features, style_gram_features, criterion: torch.nn.Module, content_weight=1, style_weight=1, vgg_layers=None):
     style_loss = 0.
-    weights = {'relu1_2': 1, 'relu2_2': 1, 'relu3_3': 2, 'relu4_3': 10, 'relu5_3': 20}
+    weights = {'relu1_2': 1, 'relu2_2': 1, 'relu3_3': 2, 'relu4_3': 5, 'relu5_3': 10}
 
 
     content_loss = content_weight * criterion(output_features['relu2_2'], original_features['relu2_2'])
