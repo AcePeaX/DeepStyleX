@@ -58,6 +58,7 @@ const App = () => {
       const response = await axios.post(host+"process", formData, {timeout: 20000});
       const updatedImages = [...newGeneratedImagesArray];
       updatedImages[0].result = response.data.styled_image_url;
+      updatedImages[0].style = response.data.style_image_url;
       updatedImages[0].loading = false;
       setGeneratedImages(updatedImages);
     } catch (error) {
@@ -139,20 +140,31 @@ const App = () => {
         <div className="list-container">
           {generatedImages.map((image, index) => (
             <div key={index} className="result-container">
+              {image.loading ? (
+                <div className="flex style-image justify-center items-center h-32 bg-gray-100 rounded style-image image-loader-container-style">
+                  <ClipLoader color="#000" size={40} />
+                </div>
+              ) : (
+                <img
+                  src={image.style}
+                  alt="Generated"
+                  className="object-cover style-image rounded center-self-style"
+                />
+              )}
               <img
                 src={image.content}
                 alt="Uploaded Content"
-                className="object-cover rounded"
+                className="object-cover initial-image rounded"
               />
               {image.loading ? (
-                <div className="flex justify-center items-center h-32 bg-gray-100 rounded">
+                <div className="flex justify-center items-center h-32 bg-gray-100 rounded result-image image-loader-container">
                   <ClipLoader color="#000" size={40} />
                 </div>
               ) : (
                 <img
                   src={image.result}
                   alt="Generated"
-                  className="object-cover rounded"
+                  className="object-cover rounded result-image"
                 />
               )}
             </div>

@@ -36,8 +36,31 @@ code {
 }
 
 .result-container > img{
-  width: 49%;
-  height: 100%;
   margin-left: 5px;
   margin-right: 5px;
+}
+.image-loader-container{
+  width: 38%;
+  height: auto;
+}
+.image-loader-style{
+  width: 23%;
+  height: auto;
+}
+
+.initial-image {
+  width: 38%;
+}
+.style-image{
+  width: 23%;
+}
+.center-self-style{
+  align-self: center;
+  height: 100%; 
+}
+.result-image{
+  width: 38%;
+}
+.image-loader-container-style{
+  height: auto;
 }
