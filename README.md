@@ -37,3 +37,9 @@ python3 scripts/model-cli.py train --dataset data/scenes/Coco/ --epochs 4 --styl
 ```bash
 python3 scripts/model-cli.py eval --model-path data/saves/model1.pth --input-image data/Central-Park.jpg --output-image output/central-leaf.jpg 
 ```
+
+### Web app
+Launch the server
+```bash
+uvicorn scripts.api:app --reload --port 8080
+```
