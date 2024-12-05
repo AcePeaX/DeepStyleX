@@ -16,7 +16,7 @@ def get_train_args(parser):
     parser.add_argument('--checkpoint-dir', type=str, default=None, help="Directory to save checkpoints (required if --checkpoint-interval is set)")
     parser.add_argument('--dataset', type=str, required=True, help="Path to the dataset folder")
     parser.add_argument('--batch-size', type=int, default=4, help="The batch size for training")
-    parser.add_argument('--style-weight', type=float, default=100000, help="Weight for style loss")
+    parser.add_argument('--style-weight', type=float, default=500000, help="Weight for style loss")
     parser.add_argument('--batch-norm', action='store_true', default=False, help="Use BatchNorm instead of InstanceNorm")
     parser.add_argument('--model-name', type=str, default=None, help="Name of the model being trained")
     parser.add_argument('--resume-path', type=str, default=None, help="Path to resume training from a saved model")
@@ -29,6 +29,13 @@ def get_train_args(parser):
     parser.add_argument('--cuda', default=None, action='store_true', help="Use CUDA (GPU) for training")
     parser.add_argument('--cpu', action='store_false', dest="cuda", help="Use CPU for training")
     parser.add_argument('--mps', action='store_true', help="Use Metal Performance Shaders (MPS) on macOS")
+    
+    parser.add_argument('--no-relu1', action='store_false', default=True, help="Not use the smallest features in style image")
+    parser.add_argument('--no-relu2', action='store_false', default=True, help="Not use the smaller features in style image")
+    parser.add_argument('--no-relu3', action='store_false', default=True, help="Not use the medium features in style image")
+    parser.add_argument('--no-relu4', action='store_false', default=True, help="Not use the larger features in style image")
+    parser.add_argument('--no-relu5', action='store_false', default=True, help="Not use the largest features in style image")
+
     return parser
 
 
@@ -74,11 +81,24 @@ def train(args):
     from torch.utils.data import DataLoader
     from tqdm import tqdm
 
+    vgg_layers = []
+    if args.no_relu1:
+        vgg_layers.append('relu1_2')
+    if args.no_relu2:
+        vgg_layers.append('relu2_2')
+    if args.no_relu3:
+        vgg_layers.append('relu3_3')
+    if args.no_relu4:
+        vgg_layers.append('relu4_3')
+    if args.no_relu5:
+        vgg_layers.append('relu5_3')
+
     # Set the device
     if args.cuda==None:
         device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     else:
         device = torch.device("cuda" if args.cuda else "cpu")
+
 
     # Making the checkpoints and save directories
     save_directory = os.path.dirname(args.output_path)
@@ -106,12 +126,12 @@ def train(args):
             print("Model not found in:",args.resume_path)
             answer = input("Do you want to continue with a fresh model? (yes) : ")
             if answer.lower()=='yes':
-                model = DeepStyleX(batch_norm=False)
+                model = DeepStyleX(batch_norm=args.batch_norm)
             else:
                 print("Exiting.")
                 return
     else:
-        model = DeepStyleX(batch_norm=False)  # Here we choose to not use batch norm, instead we use Instance norm
+        model = DeepStyleX(batch_norm=args.batch_norm)  # Here we choose to not use batch norm, instead we use Instance norm
     model.to(device)
 
     vgg_model = VGGFeatures()
@@ -157,7 +177,7 @@ def train(args):
             for feature in feature_style.keys():
                 style_gram_features_batch[feature] = style_gram_features[feature].repeat(len(batch_images), 1, 1)
             
-            loss = loss_function(output_features, original_features, style_gram_features_batch, criterion, content_weight=content_weight, style_weight=style_weight)
+            loss = loss_function(output_features, original_features, style_gram_features_batch, criterion, content_weight=content_weight, style_weight=style_weight, vgg_layers=vgg_layers)
 
             loss.backward()
             optimizer.step()

@@ -3,8 +3,9 @@ import torch.nn as nn
 from torchvision import models
 
 class VGGFeatures(nn.Module):
-    def __init__(self, layers=['relu1_2', 'relu2_2', 'relu3_3', 'relu4_3'], device=None, requires_grad=False):
+    def __init__(self, layers=['relu1_2', 'relu2_2', 'relu3_3', 'relu4_3', 'relu5_3'], device=None, requires_grad=False):
         super(VGGFeatures, self).__init__()
+        self.layers = layers
         vgg_pretrained_features = models.vgg16(weights=models.VGG16_Weights.IMAGENET1K_V1).features
         self.slice1 = torch.nn.Sequential()
         self.slice2 = torch.nn.Sequential()
@@ -36,10 +37,13 @@ class VGGFeatures(nn.Module):
         h_relu4_3 = h
         h = self.slice5(h)
         h_relu5_3 = h
+        toReturnRaw = dict()
+        toReturnRaw['relu1_2'] = h_relu1_2
+        toReturnRaw['relu2_2'] = h_relu2_2
+        toReturnRaw['relu3_3'] = h_relu3_3
+        toReturnRaw['relu4_3'] = h_relu4_3
+        toReturnRaw['relu5_3'] = h_relu5_3
         toReturn = dict()
-        toReturn['relu1_2'] = h_relu1_2
-        toReturn['relu2_2'] = h_relu2_2
-        toReturn['relu3_3'] = h_relu3_3
-        toReturn['relu4_3'] = h_relu4_3
-        toReturn['relu5_3'] = h_relu5_3
+        for key in self.layers:
+            toReturn[key] = toReturnRaw[key]
         return toReturn
