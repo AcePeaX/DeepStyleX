@@ -1,4 +1,5 @@
 import torch
+from torchvision.transforms import ToTensor, ToPILImage
 import torch.nn as nn
 
 class CustomConvolutionalLayer(nn.Module):
@@ -143,7 +144,10 @@ class DeepStyleX(torch.nn.Module):
         obj['batch_norm'] = self.batch_norm
         if style_image==None:
             style_image = self.style_image
-        obj['style_image'] = self.style_image
+        if style_image!=None:
+            obj['style_image'] = ToTensor()(style_image)
+        else:
+            obj['style_image'] = None
         obj['opti'] = optimizer
         torch.save(obj, path)
 
@@ -158,7 +162,10 @@ class DeepStyleX(torch.nn.Module):
         instance = cls(downsample_layers=obj['downsample_layers'],num_residual_blocks=obj['num_residual_blocks'],upsample_layers=obj['upsample_layers'], batch_norm=batch_norm)
         instance.load_state_dict(obj['params'])
         if 'style_image' in obj.keys():
-            instance.style_image = obj["style_image"]
+            try:
+                instance.style_image = ToPILImage()(obj["style_image"])
+            except:
+                print("Couldn't load style image from the model")
         optimizer = None
         if 'opti' in obj.keys():
             optimizer = obj["opti"]
