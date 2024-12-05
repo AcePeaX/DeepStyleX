@@ -190,9 +190,9 @@ def train(args):
                     model.save(os.path.join(args.checkpoint_dir,append_metadata(checkpoint_basename, epoch, j+1))+".pth")
     
     if args.save_optimizer:
-        model.save(args.output_path, optimizer=optimizer)
+        model.save(args.output_path, optimizer=optimizer, style_image=style_image)
     else:
-        model.save(args.output_path)
+        model.save(args.output_path, style_image=style_image)
 
 
 def evaluate(args):

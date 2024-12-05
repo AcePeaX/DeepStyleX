@@ -77,6 +77,8 @@ class DeepStyleX(torch.nn.Module):
                 downsample_layers[i] = (downsample_layers[i],)
         assert downsample_layers[-1][0]==upsample_layers[0][0]
 
+        self.style_image = None
+
         # Non-linearities
         self.relu = nn.ReLU()
 
@@ -132,13 +134,16 @@ class DeepStyleX(torch.nn.Module):
 
         return y
     
-    def save(self, path, optimizer=None):
+    def save(self, path, optimizer=None, style_image=None):
         obj = dict()
         obj['params'] = self.state_dict()
         obj['downsample_layers'] = self.downsample_layers
         obj['num_residual_blocks'] = self.num_residual_blocks
         obj['upsample_layers'] = self.upsample_layers
         obj['batch_norm'] = self.batch_norm
+        if style_image==None:
+            style_image = self.style_image
+        obj['style_image'] = self.style_image
         obj['opti'] = optimizer
         torch.save(obj, path)
 
@@ -152,6 +157,8 @@ class DeepStyleX(torch.nn.Module):
             batch_norm = obj["batch_norm"]
         instance = cls(downsample_layers=obj['downsample_layers'],num_residual_blocks=obj['num_residual_blocks'],upsample_layers=obj['upsample_layers'], batch_norm=batch_norm)
         instance.load_state_dict(obj['params'])
+        if 'style_image' in obj.keys():
+            instance.style_image = obj["style_image"]
         optimizer = None
         if 'opti' in obj.keys():
             optimizer = obj["opti"]
