@@ -1,4 +1,8 @@
-# DeepStyleX
+<h1 align="center">
+  <img src="deep-style-frontend/public/logo192.png" alt="Logo" width="170" height="170">
+  <br>
+  DeepStyleX
+</h1>
 
 **DeepStyleX** is an image transformation family of models that applies a style to the image.
 This model is inspired from these two papers: 
