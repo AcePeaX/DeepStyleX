@@ -102,3 +102,16 @@ def resize_image_with_max_resolution(image: Image.Image, max_resolution: int) ->
     resized_image = image.resize((new_width, new_height), Image.LANCZOS)
 
     return resized_image
+
+
+import mimetypes
+
+def get_file_type(file_path: str) -> str:
+    mime_type, _ = mimetypes.guess_type(file_path)
+    if mime_type:
+        if mime_type.startswith('image'):
+            return "image"
+        elif mime_type.startswith('video'):
+            return "video"
+    return "unknown"
+
