@@ -47,3 +47,14 @@ Launch the server
 ```bash
 uvicorn scripts.api:app --reload --port 8080
 ```
+
+> Note: Your models should be in `data/saves/` in order to be used in the web app
+
+
+
+### Download pretrained models
+To download pretrained models, just run this python script:
+
+```bash
+python3 scripts/download-models.py 
+```
