@@ -48,6 +48,8 @@ Launch the server
 uvicorn scripts.api:app --reload --port 8080
 ```
 
+![WebApp preview](./deep-style-frontend/web-app-screenshot.png)
+
 > Note: Your models should be in `data/saves/` in order to be used in the web app
 
 
