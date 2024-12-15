@@ -10,6 +10,11 @@ This model is inspired from these two papers:
 - [Perceptual Losses for Real-Time Style Transfer and Super-Resolution](https://arxiv.org/abs/1603.08155)
 - [Instance Normalization: The Missing Ingredient for Fast Stylization](https://arxiv.org/pdf/1607.08022)
 
+> [!TIP]
+> This project contains a **Web UI** to make it easy to use. For more information, reffer to this [section](#web-app).
+
+> [!IMPORTANT]
+> There is a suit of pretrained models, reffer to this [section](#download-pretrained-models).
 
 ## Getting started
 ```bash
